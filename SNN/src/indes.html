@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuromorphic Computing Simulator</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Neuromorphic Sim</div>
+        <ul class="nav-links">
+            <li class="dropdown">
+                <a href="#" class="dropdown-btn glow">Simulation</a>
+                <div class="dropdown-content">
+                    <a href="#">Run SNN</a>
+                    <a href="#">Parameters</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-btn glow">Docs</a>
+                <div class="dropdown-content">
+                    <a href="#">How It Works</a>
+                    <a href="#">API Reference</a>
+                </div>
+            </li>
+            <li><a href="#" class="dropdown-btn glow">Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1 class="glow">Neuromorphic Computing Simulator</h1>
+            <p>Simulate Spiking Neural Networks (SNNs) for Brain-like AI in Your Browser</p>
+            <img src="D:\Coding\Projects\SNN\src\assets\brain.png" alt="Brain Background" class="hero-image">
+        </section>
+
+        <section class="simulation">
+            <h2 class="glow">Live SNN Simulation</h2>
+            <div id="loading">Loading Pyodide...</div>
+            <div class="controls">
+                <label>Weight (w): <input id="weight" type="number" step="0.01" value="0.4"></label>
+                <label>Beta: <input id="beta" type="number" step="0.01" value="0.819"></label>
+                <button id="runBtn" disabled>Run Simulation</button>
+            </div>
+            <canvas id="snnCanvas" width="800" height="400"></canvas>
+            <div class="dashboard">
+                <p>Weight: <span id="weightVal">0.40</span> | Beta: <span id="betaVal">0.819</span></p>
+            </div>
+        </section>
+
+        <section class="info collapsible">
+            <h2 class="glow collapsible">How It Works</h2>
+            <div class="collapsible-content">
+                <p>The simulation models a Leaky Integrate-and-Fire (LIF) neuron. Adjust the weight and beta parameters to observe spiking behavior.</p>
+                <h3>Python Code</h3>
+                <pre><code id="pythonCode">
+import js
+import json
+
+def leaky_integrate_and_fire(mem, x, w, beta, threshold=1):
+    spk = 1 if mem > threshold else 0
+    mem = beta * mem + w * x - spk * threshold
+    return spk, mem
+
+def simulate_snn(weight=0.4, beta=0.819):
+    num_steps = 200
+    x = [0] * 10 + [0.5] * 190
+    mem = 0.0
+    mem_rec = []
+    spk_rec = []
+
+    for step in range(num_steps):
+        spk, mem = leaky_integrate_and_fire(mem, x[step], w=weight, beta=beta)
+        mem_rec.append(mem)
+        spk_rec.append(spk)
+
+    js.drawCanvas(json.dumps({"mem": mem_rec, "spk": spk_rec, "steps": num_steps}))
+                </code></pre>
+            </div>
+        </section>
+
+        <section class="explore collapsible">
+            <h2 class="glow collapsible">Explore More</h2>
+            <div class="collapsible-content">
+                <p>Modify parameters and run the simulation to explore neuron dynamics. Experiment with different weight and beta values!</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Neuromorphic Simulator | Powered by Pyodide</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Collapsible functionality
+        document.querySelectorAll('.collapsible').forEach(header => {
+            header.addEventListener('click', () => {
+                header.classList.toggle('active');
+            });
+        });
+
+        // Update dashboard values
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                document.getElementById(`${input.id}Val`).textContent = input.value;
+            });
+        });
+    </script>
+</body>
+</html>
